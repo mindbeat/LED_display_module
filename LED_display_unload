@@ -1,0 +1,14 @@
+#!/bin/sh
+module="LED_display"
+device="LED_display"
+
+# invoke rmmod with all arguments we got
+/sbin/rmmod $module $* || exit 1
+
+# Remove stale nodes
+
+rm -f /dev/${device} /dev/${device} 
+
+
+
+
