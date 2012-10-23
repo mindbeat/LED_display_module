@@ -36,7 +36,6 @@ struct cdev LED_display_cdev;
 int LED_display_var;
 int devno;
 
-
 struct omap_mux pin_mux[] = {
 	{GPMC_AD6, MUX_MODE_7_GPIO_OUTPUT},
 	{GPMC_AD7, MUX_MODE_7_GPIO_OUTPUT},
@@ -125,7 +124,7 @@ static void display_number(int number)
 {	
 
 	unsigned int digit1 = (number % 10);
-	unsigned int digit10 = (number /10);
+	unsigned int digit10 = (number / 10);
 	
 	set_led_number(8, led_masks[digit1]);
 
@@ -222,30 +221,31 @@ struct file_operations LED_display_fops = {
 
 static int __init LED_display_init(void)
 {
-	int err;
-	int result;
-	int major;
+	int err = 0, result = 0, major = 0;
 	dev_t dev = 0;
 	setup_pin_mux();
 
 	err = gpio_request_array(leds_gpios, ARRAY_SIZE(leds_gpios));
+
 	if (err)
 		printk(KERN_WARNING "Could not allocate GPIO");
 
 	result = alloc_chrdev_region(&dev, 0, 1,"LED_display");
-		major = MAJOR(dev);
+	major = MAJOR(dev);
 
 
 	if (result < 0) {
 		printk(KERN_WARNING "LED_display: can't get major %d\n", major);
 		return result;
 	}
+
 	display_number(0);
 	devno = MKDEV(major, 0);
 	cdev_init(&LED_display_cdev, &LED_display_fops);
 	LED_display_cdev.owner = THIS_MODULE;
 	LED_display_cdev.ops = &LED_display_fops;
 	err = cdev_add (&LED_display_cdev, devno, 1);
+
 	if (err)
 		printk(KERN_NOTICE "Error %d adding char-device",err);
 
